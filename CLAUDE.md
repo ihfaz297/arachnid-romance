@@ -108,11 +108,39 @@ vignette, no segmentation) instead of shipping a near-blank chip. Check the
 run log (prints `[cutout]` vs `[vignette-fallback]` per file) for which
 images fell back — worth a quick visual spot check on those specifically.
 
-For the 6 canopy trees specifically: Sal and Jarul had clean isolated-tree-
-against-sky source photos → full segmentation cutout. Bohera/Koroi/Amloki/
-Sheora source photos are busy (forest interior, urban plaza, orchard, walled
-yard) → segmentation produced garbage (scattered twigs) → these use the
-no-cutout vignette method deliberately, not as a failure fallback.
+**`MIN_COVERAGE` only catches total mask failure, not a diffuse/weak mask**
+— it measures mask AREA (`(mask_alpha > 0.3).sum() / size`), not mask
+CONFIDENCE within that area. Third review round: Honey-suckled Mistletoe
+(`modhupai_dhaira`), Kath Ber (`anaigota`), Princess Vine (`anguri`) all
+passed the area check (6–21% coverage — well above the 2.8% floor) but
+still rendered almost invisible, because on busy-bokeh macro shots rembg
+can return a mask that's large but weakly-confident everywhere (median
+alpha ~15–20/255 rather than a tight, confident silhouette) — the exact
+inverse failure mode from a too-small mask, and the area check can't see
+it. No general auto-detection was added for this (would need a second,
+different heuristic); instead there's now a `FORCE_VIGNETTE` filename set
+in `sketchify_all.py` for known cases, found by manually checking
+alpha-channel stats (`mean()`, percentiles of nonzero pixels) per
+complaint rather than guessing. If another chip is reported faint despite
+not appearing in a `[vignette-fallback]` log line, check its raw rembg
+mask stats the same way before assuming a global-parameter fix is needed
+— it's very likely this same diffuse-mask pattern, and the fix is just
+adding its filename to `FORCE_VIGNETTE` and deleting+regenerating that one
+output file (the batch script skips files that already exist, so deleting
+only the target file(s) and rerunning reprocesses just those).
+
+For the 6 canopy trees specifically: Sal had a clean isolated-tree-against-
+sky source photo → full segmentation cutout, the only tree that still uses
+it. Jarul's source photo *looks* equally clean but isnet-general-use fails
+on it anyway (mean mask alpha ~3/255 vs Sal's ~28/255, confirmed with a
+tighter subject-only crop too — a genuine model weakness on this photo's
+soft/hazy tonal range, not fixable by reframing). Bohera/Koroi/Amloki/
+Sheora source photos are busy (forest interior, urban plaza, orchard,
+walled yard) → segmentation produced garbage (scattered twigs). All five
+(Jarul included) use the no-cutout vignette method — for Bohera/Koroi/
+Amloki/Sheora that was always deliberate, not a fallback; for Jarul it's
+a fix for a real failure. **Do not move Jarul back to `sketch_cutout` in
+`reprocess_trees.py`** without re-testing the mask — this was tried first.
 
 ## Design decisions (rationale, so they aren't re-litigated)
 
