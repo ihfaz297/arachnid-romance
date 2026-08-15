@@ -147,12 +147,41 @@ no-cutout vignette method deliberately, not as a failure fallback.
   arrow is labeled with the actual mechanism (e.g. "gnaws bark & seeds",
   "preys on rodents, nestlings & eggs"), not just "eats."
 - **Composition / solid-void hierarchy:** user feedback #6 and #7. The
-  diagram now sits in its own dark (`--ink`) rounded panel
-  (`.trophic-panel`) that visually dominates the page — deliberate
-  solid-void contrast against the light paper — and the center column was
-  widened from 133mm to 168mm (at the expense of the flora/fauna columns,
-  91mm → 80mm, and the context column, 78mm → 66mm) specifically so this
-  panel reads as the hero element, not one quadrant among four.
+  center column was widened from 133mm to 168mm (at the expense of the
+  flora/fauna columns, 91mm → 80mm, and the context column, 78mm → 66mm)
+  specifically so the interrelationship diagram reads as the hero element,
+  not one quadrant among four. Column widths were NOT touched in the round
+  below — only the diagram's own fill/color treatment changed.
+- **`.trophic-panel` dark background REMOVED (superseding the note above)** —
+  second review round, relayed via chat screenshot + a composition
+  reference image (a wetland-ecosystem infographic whose hero illustration
+  floats directly on white, no color block behind it) plus the specific
+  note "the color behind the interrelationship [diagram] — remove that,
+  the composition would be fixed." The diagram now floats directly on
+  `--paper` like every other element on the sheet, and dominates through
+  scale/density/detail instead of a solid ink rectangle. **Do not
+  reintroduce a `background`/`box-shadow` on `.trophic-panel`** — this was
+  tried first and explicitly rejected. This required flipping every color
+  in `trophic_svg()` and its CSS from light-on-dark to dark-on-parchment:
+  `.tnode-ring` stroke → `--ink` (was `--panel-fg`), `.tnode-title`/
+  `.tspoke-label` fill → `--ink` with an SVG text-halo (`paint-order:stroke;
+  stroke:var(--paper);stroke-width:3px`) for legibility over crossing lines
+  — since without a uniform dark backing, text now sits on a busy paper
+  background and needs its own contrast trick, `.tnode-sub` fill → `--moss`
+  (gold-on-paper measured ~1.9:1 contrast, too low — moss is the poster's
+  established italic/sub-label color elsewhere, e.g. `.tree-chip i`),
+  `.trophic-eyebrow`/`.trophic-sub` → `--canopy`/`--moss` (matching the
+  other three columns' eyebrow treatment, which is what makes the center
+  column now read as integrated with the page rather than a dropped-in
+  insert), arrow marker fill and icon `currentColor` → hardcoded `#182619`
+  (ink). **Exception:** the Shal Tree hub's caption still sits on its own
+  small solid dark plate drawn directly over the tree photo (`fill="var(
+  --ink)" opacity="0.82"` rect) — that plate provides its own local
+  contrast regardless of panel color, so it kept light text. Given its own
+  dedicated classes (`.tnode-title-onplate`, `.tnode-sub-onplate`, still
+  `--panel-fg`/`--gold`) instead of sharing `.tnode-title`/`.tnode-sub`,
+  specifically so this one exception doesn't get lost/reverted next time
+  the general node-label colors change.
 - **Old bottom "simplified food web" strip was removed** once the main
   diagram became a real, comprehensive food web — it was fully redundant.
 - **Chips have no border/white box anymore** (they did originally, to frame
@@ -176,9 +205,9 @@ the canonical list rather than re-deriving from the PDFs again.
 
 ## Outstanding / next steps
 
-Check todo list state in-session. As of the last checkpoint: rebuilding with
-the new fallback-aware image batch, then need to re-verify the full poster
-via headless screenshot (check the trophic diagram hub-label placement,
-Decomposers/Soil label position, and spot-check any `[vignette-fallback]`
-images from the reprocess log), then copy to both `index.html` and the
-Artifact path, commit, and `git push`.
+As of the last checkpoint (composition fix — dark panel removed, see above):
+poster regenerated, screenshot-verified (hub label, arrow-label legibility
+over crossing lines, legend all checked via cropped headless-Chrome
+screenshots), copied to both `index.html` and the Artifact path, Artifact
+republished, committed, and pushed (`b4ad177`). Waiting on the next round of
+review from the user/Hridita. No known open issues.
